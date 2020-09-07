@@ -1,9 +1,9 @@
 <template>
-  <elFrame :src="sqlApi" />
+  <elFrame :src="sqlApi"/>
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import elFrame from '@/components/Iframe/index'
+import elFrame from '@/components/iframe/index'
 export default {
   name: 'Sql',
   components: { elFrame },

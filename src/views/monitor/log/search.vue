@@ -1,24 +1,17 @@
 <template>
-  <div v-if="crud.props.searchToggle">
-    <el-input
-      v-model="query.blurry"
-      clearable
-      size="small"
-      placeholder="请输入你要搜索的内容"
-      style="width: 200px;"
-      class="filter-item"
-    />
-    <date-range-picker v-model="query.createTime" class="date-item" />
-    <rrOperation />
+  <div class="head-container">
+    <el-input v-model="query.value" clearable placeholder="请输入你要搜索的内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
+    <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="$parent.toQuery">搜索</el-button>
   </div>
 </template>
 
 <script>
-import { header } from '@crud/crud'
-import rrOperation from '@crud/RR.operation'
-import DateRangePicker from '@/components/DateRangePicker'
 export default {
-  components: { rrOperation, DateRangePicker },
-  mixins: [header()]
+  props: {
+    query: {
+      type: Object,
+      required: true
+    }
+  }
 }
 </script>

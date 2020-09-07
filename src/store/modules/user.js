@@ -1,5 +1,6 @@
-import { login, getInfo, logout } from '@/api/login'
+import { login, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { decrypt } from '@/utils/rsaEncrypt'
 
 const user = {
   state: {
@@ -28,9 +29,13 @@ const user = {
   actions: {
     // 登录
     Login({ commit }, userInfo) {
+      const username = userInfo.username
+      const password = decrypt(userInfo.password)
+      const code = userInfo.code
+      const uuid = userInfo.uuid
       const rememberMe = userInfo.rememberMe
       return new Promise((resolve, reject) => {
-        login(userInfo.username, userInfo.password, userInfo.code, userInfo.uuid).then(res => {
+        login(username, password, code, uuid).then(res => {
           setToken(res.token, rememberMe)
           commit('SET_TOKEN', res.token)
           setUserInfo(res.user, commit)
@@ -54,16 +59,14 @@ const user = {
         })
       })
     },
+
     // 登出
     LogOut({ commit }) {
       return new Promise((resolve, reject) => {
-        logout().then(res => {
-          logOut(commit)
-          resolve()
-        }).catch(error => {
-          logOut(commit)
-          reject(error)
-        })
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        removeToken()
+        resolve()
       })
     },
 
@@ -75,12 +78,6 @@ const user = {
   }
 }
 
-export const logOut = (commit) => {
-  commit('SET_TOKEN', '')
-  commit('SET_ROLES', [])
-  removeToken()
-}
-
 export const setUserInfo = (res, commit) => {
   // 如果没有任何权限，则赋予一个默认的权限，避免请求死循环
   if (res.roles.length === 0) {
@@ -88,7 +85,7 @@ export const setUserInfo = (res, commit) => {
   } else {
     commit('SET_ROLES', res.roles)
   }
-  commit('SET_USER', res.user)
+  commit('SET_USER', res)
 }
 
 export default user

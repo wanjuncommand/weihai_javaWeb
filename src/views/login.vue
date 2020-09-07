@@ -1,30 +1,26 @@
 <template>
-  <div class="login" :style="'background-image:url('+ Background +');'">
+  <div class="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-position="left" label-width="0px" class="login-form">
-      <h3 class="title">
-        EL-ADMIN 后台管理系统
-      </h3>
+      <h3 class="title">EL-ADMIN 后台管理系统</h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
-          <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
+          <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon"/>
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
         <el-input v-model="loginForm.password" type="password" auto-complete="off" placeholder="密码" @keyup.enter.native="handleLogin">
-          <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+          <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon"/>
         </el-input>
       </el-form-item>
-      <el-form-item prop="code">
-        <el-input v-model="loginForm.code" auto-complete="off" placeholder="验证码" style="width: 63%" @keyup.enter.native="handleLogin">
-          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
-        </el-input>
-        <div class="login-code">
-          <img :src="codeUrl" @click="getCode">
-        </div>
-      </el-form-item>
-      <el-checkbox v-model="loginForm.rememberMe" style="margin:0 0 25px 0;">
-        记住我
-      </el-checkbox>
+      <!--<el-form-item prop="code">-->
+        <!--<el-input v-model="loginForm.code" auto-complete="off" placeholder="验证码" style="width: 63%" @keyup.enter.native="handleLogin">-->
+          <!--<svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon"/>-->
+        <!--</el-input>-->
+        <!--<div class="login-code">-->
+          <!--<img :src="codeUrl" @click="getCode">-->
+        <!--</div>-->
+      <!--</el-form-item>-->
+      <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住我</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button :loading="loading" size="medium" type="primary" style="width:100%;" @click.native.prevent="handleLogin">
           <span v-if="!loading">登 录</span>
@@ -34,7 +30,7 @@
     </el-form>
     <!--  底部  -->
     <div v-if="$store.state.settings.showFooter" id="el-login-footer">
-      <span v-html="$store.state.settings.footerTxt" />
+      <span v-html="$store.state.settings.footerTxt"/>
       <span> ⋅ </span>
       <a href="http://www.beian.miit.gov.cn" target="_blank">{{ $store.state.settings.caseNumber }}</a>
     </div>
@@ -43,15 +39,13 @@
 
 <script>
 import { encrypt } from '@/utils/rsaEncrypt'
-import Config from '@/settings'
+import Config from '@/config'
 import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
-import Background from '@/assets/images/background.jpg'
 export default {
   name: 'Login',
   data() {
     return {
-      Background: Background,
       codeUrl: '',
       cookiePass: '',
       loginForm: {
@@ -63,8 +57,8 @@ export default {
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', message: '用户名不能为空' }],
-        password: [{ required: true, trigger: 'blur', message: '密码不能为空' }],
-        code: [{ required: true, trigger: 'change', message: '验证码不能为空' }]
+        password: [{ required: true, trigger: 'blur', message: '密码不能为空' }]
+        // code: [{ required: true, trigger: 'change', message: '验证码不能为空' }]
       },
       loading: false,
       redirect: undefined
@@ -79,17 +73,13 @@ export default {
     }
   },
   created() {
-    // 获取验证码
-    this.getCode()
-    // 获取用户名密码等Cookie
+    // this.getCode()
     this.getCookie()
-    // token 过期提示
-    this.point()
   },
   methods: {
     getCode() {
       getCodeImg().then(res => {
-        this.codeUrl = res.img
+        this.codeUrl = 'data:image/gif;base64,' + res.img
         this.loginForm.uuid = res.uuid
       })
     },
@@ -135,25 +125,13 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
           }).catch(() => {
             this.loading = false
-            this.getCode()
+            // this.getCode()
           })
         } else {
           console.log('error submit!!')
           return false
         }
       })
-    },
-    point() {
-      const point = Cookies.get('point') !== undefined
-      if (point) {
-        this.$notify({
-          title: '提示',
-          message: '当前登录状态已过期，请重新登录！',
-          type: 'warning',
-          duration: 5000
-        })
-        Cookies.remove('point')
-      }
     }
   }
 }
@@ -165,10 +143,11 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
+    background-image:url(	https://docs-1255840532.cos.ap-shanghai.myqcloud.com/3968.jpg );
     background-size: cover;
   }
   .title {
-    margin: 0 auto 30px auto;
+    margin: 0px auto 30px auto;
     text-align: center;
     color: #707070;
   }
@@ -176,7 +155,7 @@ export default {
   .login-form {
     border-radius: 6px;
     background: #ffffff;
-    width: 385px;
+    width: 400px;
     padding: 25px 25px 5px 25px;
     .el-input {
       height: 38px;

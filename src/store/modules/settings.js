@@ -1,37 +1,30 @@
-import variables from '@/assets/styles/element-variables.scss'
-import defaultSettings from '@/settings'
-const { tagsView, fixedHeader, sidebarLogo, uniqueOpened, showFooter, footerTxt, caseNumber } = defaultSettings
+import Config from '@/config'
+import variables from '@/styles/element-variables.scss'
 
-const state = {
-  theme: variables.theme,
-  showSettings: false,
-  tagsView: tagsView,
-  fixedHeader: fixedHeader,
-  sidebarLogo: sidebarLogo,
-  uniqueOpened: uniqueOpened,
-  showFooter: showFooter,
-  footerTxt: footerTxt,
-  caseNumber: caseNumber
-}
-
-const mutations = {
-  CHANGE_SETTING: (state, { key, value }) => {
-    if (state.hasOwnProperty(key)) {
-      state[key] = value
+const settings = {
+  state: {
+    showRightPanel: false,
+    tagsView: Config.tagsView,
+    fixedHeader: Config.fixedHeader,
+    sidebarLogo: Config.sidebarLogo,
+    theme: variables.theme,
+    settingBtn: Config.settingBtn,
+    uniqueOpened: Config.uniqueOpened,
+    showFooter: Config.showFooter,
+    footerTxt: Config.footerTxt,
+    caseNumber: Config.caseNumber
+  },
+  mutations: {
+    CHANGE_SETTING: (state, { key, value }) => {
+      if (state.hasOwnProperty(key)) {
+        state[key] = value
+      }
+    }
+  },
+  actions: {
+    changeSetting({ commit }, data) {
+      commit('CHANGE_SETTING', data)
     }
   }
 }
-
-const actions = {
-  changeSetting({ commit }, data) {
-    commit('CHANGE_SETTING', data)
-  }
-}
-
-export default {
-  namespaced: true,
-  state,
-  mutations,
-  actions
-}
-
+export default settings

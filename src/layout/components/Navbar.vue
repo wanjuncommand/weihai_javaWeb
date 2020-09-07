@@ -1,33 +1,25 @@
 <template>
   <div class="navbar">
-    <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
+    <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
+    <breadcrumb class="breadcrumb-container"/>
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item" />
-
-        <el-tooltip content="项目文档" effect="dark" placement="bottom">
-          <Doc class="right-menu-item hover-effect" />
+        <el-tooltip content="全屏" effect="dark" placement="bottom">
+          <screenfull class="screenfull right-menu-item"/>
         </el-tooltip>
-
-        <el-tooltip content="全屏缩放" effect="dark" placement="bottom">
-          <screenfull id="screenfull" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-        <el-tooltip content="布局设置" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
       </template>
-
-      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+      <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
+          <img :src="user.avatar ? baseApi + '/avatar/' + user.avatar : Avatar" class="user-avatar">
+          <i class="el-icon-caret-bottom"/>
         </div>
         <el-dropdown-menu slot="dropdown">
+          <a target="_blank" href="https://docs.auauz.net/">
+            <el-dropdown-item>
+              项目文档
+            </el-dropdown-item>
+          </a>
           <span style="display:block;" @click="show = true">
             <el-dropdown-item>
               布局设置
@@ -53,20 +45,13 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-import Doc from '@/components/Doc'
 import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import Search from '@/components/HeaderSearch'
-import Avatar from '@/assets/images/avatar.png'
-
+import Avatar from '@/assets/avatar/avatar.png'
 export default {
   components: {
     Breadcrumb,
     Hamburger,
-    Screenfull,
-    SizeSelect,
-    Search,
-    Doc
+    Screenfull
   },
   data() {
     return {
@@ -77,26 +62,23 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'device',
       'user',
+      'device',
       'baseApi'
     ]),
     show: {
       get() {
-        return this.$store.state.settings.showSettings
+        return this.$store.state.settings.showRightPanel
       },
       set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'showSettings',
+        this.$store.dispatch('changeSetting', {
+          key: 'showRightPanel',
           value: val
         })
       }
     }
   },
   methods: {
-    toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
-    },
     open() {
       this.$confirm('确定注销并退出系统吗？', '提示', {
         confirmButtonText: '确定',
@@ -106,95 +88,77 @@ export default {
         this.logout()
       })
     },
+    toggleSideBar() {
+      this.$store.dispatch('ToggleSideBar')
+    },
     logout() {
+      this.dialogVisible = false
       this.$store.dispatch('LogOut').then(() => {
-        location.reload()
+        location.reload() // 为了重新实例化vue-router对象 避免bug
       })
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.navbar {
-  height: 50px;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
-
-  .hamburger-container {
-    line-height: 46px;
-    height: 100%;
-    float: left;
-    cursor: pointer;
-    transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
-
-    &:hover {
-      background: rgba(0, 0, 0, .025)
-    }
-  }
-
-  .breadcrumb-container {
-    float: left;
-  }
-
-  .errLog-container {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .right-menu {
-    float: right;
-    height: 100%;
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .navbar {
+    height: 50px;
     line-height: 50px;
-
-    &:focus {
-      outline: none;
+    border-radius: 0px !important;
+    .hamburger-container {
+      line-height: 58px;
+      height: 50px;
+      float: left;
+      padding: 0 10px;
     }
-
-    .right-menu-item {
+    .breadcrumb-container{
+      float: left;
+    }
+    .errLog-container {
       display: inline-block;
-      padding: 0 8px;
-      height: 100%;
-      font-size: 18px;
-      color: #5a5e66;
-      vertical-align: text-bottom;
-
-      &.hover-effect {
-        cursor: pointer;
-        transition: background .3s;
-
-        &:hover {
-          background: rgba(0, 0, 0, .025)
-        }
-      }
+      vertical-align: top;
     }
-
-    .avatar-container {
-      margin-right: 30px;
-
-      .avatar-wrapper {
-        margin-top: 5px;
-        position: relative;
-
-        .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        .el-icon-caret-bottom {
-          cursor: pointer;
-          position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
+    .right-menu {
+      float: right;
+      height: 100%;
+      &:focus{
+        outline: none;
+      }
+      .right-menu-item {
+        display: inline-block;
+        margin: 0 8px;
+      }
+      .screenfull {
+        height: 20px;
+      }
+      .international{
+        vertical-align: top;
+      }
+      .theme-switch {
+        vertical-align: 15px;
+      }
+      .avatar-container {
+        height: 50px;
+        margin-right: 30px;
+        .avatar-wrapper {
+          margin-top: 5px;
+          position: relative;
+          .user-avatar {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+          }
+          .el-icon-caret-bottom {
+            cursor: pointer;
+            position: absolute;
+            right: -20px;
+            top: 25px;
+            font-size: 12px;
+          }
         }
       }
     }
   }
-}
 </style>

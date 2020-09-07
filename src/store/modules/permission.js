@@ -1,5 +1,5 @@
 import { constantRouterMap } from '@/router/routers'
-import Layout from '@/layout/index'
+import Layout from '@/layout/Layout'
 
 const permission = {
   state: {
@@ -20,7 +20,7 @@ const permission = {
 }
 
 export const filterAsyncRouter = (routers) => { // 遍历后台传来的路由字符串，转换为组件对象
-  return routers.filter(router => {
+  const accessedRouters = routers.filter(router => {
     if (router.component) {
       if (router.component === 'Layout') { // Layout组件特殊处理
         router.component = Layout
@@ -34,10 +34,11 @@ export const filterAsyncRouter = (routers) => { // 遍历后台传来的路由�
     }
     return true
   })
+  return accessedRouters
 }
 
-export const loadView = (view) => {
-  return (resolve) => require([`@/views/${view}`], resolve)
+export const loadView = (view) => { // 路由懒加载
+  return () => import(`@/views/${view}`)
 }
 
 export default permission

@@ -1,44 +1,39 @@
 import Vue from 'vue'
 
-import Cookies from 'js-cookie'
-
-import 'normalize.css/normalize.css'
-
-import Element from 'element-ui'
-//
+import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
-
-// 数据字典
-import dict from './components/Dict'
-
-// 权限指令
-import permission from './components/Permission'
-import './assets/styles/element-variables.scss'
-// global css
-import './assets/styles/index.scss'
-
-// 代码高亮
-import VueHighlightJS from 'vue-highlightjs'
-import 'highlight.js/styles/atom-one-dark.css'
+import '@/styles/index.scss' // global css
 
 import App from './App'
-import store from './store'
 import router from './router/routers'
+import permission from './components/permission'
+import store from './store'
 
-import './assets/icons' // icon
+import '@/icons' // icon
 import './router/index' // permission control
-import 'echarts-gl'
+// import Router from 'vue-router'
 
-Vue.use(VueHighlightJS)
+import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+Vue.use(VueQuillEditor)
+
 Vue.use(mavonEditor)
 Vue.use(permission)
-Vue.use(dict)
-Vue.use(Element, {
-  size: Cookies.get('size') || 'small' // set element-ui default size
-})
-
+Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false
+
+// const routerPush = Router.prototype.push
+// Router.prototype.push = function push(location) {
+//   return routerPush.call(this, location).catch(error => error)
+// }
+require('babel-polyfill')
 
 new Vue({
   el: '#app',

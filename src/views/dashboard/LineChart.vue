@@ -1,14 +1,14 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height:height,width:width}"/>
 </template>
 
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
-import resize from './mixins/resize'
+import { debounce } from '@/utils'
+import { getChartData } from '@/api/visits'
 
 export default {
-  mixins: [resize],
   props: {
     className: {
       type: String,
@@ -25,46 +25,62 @@ export default {
     autoResize: {
       type: Boolean,
       default: true
-    },
-    chartData: {
-      type: Object,
-      required: true
     }
   },
   data() {
     return {
-      chart: null
-    }
-  },
-  watch: {
-    chartData: {
-      deep: true,
-      handler(val) {
-        this.setOptions(val)
-      }
+      chart: null,
+      sidebarElm: null,
+      chartData: {
+        visitsData: [],
+        ipData: []
+      },
+      weekDays: []
     }
   },
   mounted() {
-    this.$nextTick(() => {
+    getChartData().then(res => {
+      this.chartData.visitsData = res.visitsData
+      this.chartData.ipData = res.ipData
+      this.weekDays = res.weekDays
       this.initChart()
     })
+    if (this.autoResize) {
+      this.__resizeHandler = debounce(() => {
+        if (this.chart) {
+          this.chart.resize()
+        }
+      }, 100)
+      window.addEventListener('resize', this.__resizeHandler)
+    }
+
+    // 监听侧边栏的变化
+    this.sidebarElm = document.getElementsByClassName('sidebar-container')[0]
+    this.sidebarElm && this.sidebarElm.addEventListener('transitionend', this.sidebarResizeHandler)
   },
   beforeDestroy() {
     if (!this.chart) {
       return
     }
+    if (this.autoResize) {
+      window.removeEventListener('resize', this.__resizeHandler)
+    }
+
+    this.sidebarElm && this.sidebarElm.removeEventListener('transitionend', this.sidebarResizeHandler)
+
     this.chart.dispose()
     this.chart = null
   },
   methods: {
-    initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
-      this.setOptions(this.chartData)
+    sidebarResizeHandler(e) {
+      if (e.propertyName === 'width') {
+        this.__resizeHandler()
+      }
     },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ visitsData, ipData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: this.weekDays,
           boundaryGap: false,
           axisTick: {
             show: false
@@ -90,10 +106,10 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ['pv', 'ip']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: 'pv', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -104,12 +120,12 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: expectedData,
+          data: visitsData,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'actual',
+          name: 'ip',
           smooth: true,
           type: 'line',
           itemStyle: {
@@ -124,11 +140,15 @@ export default {
               }
             }
           },
-          data: actualData,
+          data: ipData,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
         }]
       })
+    },
+    initChart() {
+      this.chart = echarts.init(this.$el, 'macarons')
+      this.setOptions(this.chartData)
     }
   }
 }
